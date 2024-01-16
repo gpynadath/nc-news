@@ -10,7 +10,7 @@ exports.selectAnArticle = (id) => {
   if (id) {
     queryString += ` WHERE article_id=${id}`;
   }
-  console.log("Query String", queryString);
+
   return db.query(queryString).then((data) => {
     if (data.rows.length === 0) {
       return Promise.reject({
@@ -29,13 +29,28 @@ exports.selectAllArticles = () => {
       ORDER BY articles.created_at DESC
   `
     )
-    .then((data) => {
-      if (data.rows.length === 0) {
+    .then((article) => {
+      if (article.rows.length === 0) {
         return Promise.reject({
           msg: "Bad request.",
         });
       } else {
-        console.log(data.rows);
+        return article.rows;
+      }
+    });
+};
+
+exports.selectCommentsById = (article_id) => {
+  return db
+    .query(
+      `SELECT * FROM comments WHERE article_id=${article_id} ORDER BY created_at DESC;`
+    )
+    .then((data) => {
+      if (data.rows.length === 0) {
+        return Promise.reject({
+          msg: "Bad request",
+        });
+      } else {
         return data.rows;
       }
     });

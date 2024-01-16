@@ -62,7 +62,7 @@ describe("GET /articles/2", () => {
       .get("/api/articles/999")
       .expect(404)
       .then((response) => {
-        expect(response.body).toEqual({ msg: "Article not found" });
+        expect(response.body).toEqual({ msg: "Item not found" });
       });
   });
 });
@@ -74,7 +74,8 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then((response) => {
         const articles = response.body;
-        articles.data.forEach((article) => {
+        expect(articles.article.length).toBeGreaterThan(0);
+        articles.article.forEach((article) => {
           expect(typeof article.author).toBe("string");
           expect(typeof article.title).toBe("string");
           expect(typeof article.article_id).toBe("number");
@@ -84,6 +85,34 @@ describe("GET /api/articles", () => {
           expect(typeof article.article_img_url).toBe("string");
           expect(typeof article.comment_count).toBe("number");
         });
+      });
+  });
+});
+
+describe("GET /api/articles/3/comments", () => {
+  test("returns array of comments of specified article", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then((response) => {
+        const comments = response.body.comments;
+        expect(comments.length).toBeGreaterThan(0);
+        comments.forEach((comment) => {
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.article_id).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.body).toBe("string");
+        });
+      });
+  });
+  test("returns error when no comments found for specific article", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(404)
+      .then((response) => {
+        expect(response.body).toEqual({ msg: "Item not found" });
       });
   });
 });
