@@ -62,7 +62,7 @@ describe("GET /articles/2", () => {
       .get("/api/articles/999")
       .expect(404)
       .then((response) => {
-        expect(response.body).toEqual({ msg: "Article not found" });
+        expect(response.body).toEqual({ msg: "Item not found" });
       });
   });
 });
@@ -74,7 +74,8 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then((response) => {
         const articles = response.body;
-        articles.data.forEach((article) => {
+        expect(articles.article.length).toBeGreaterThan(0);
+        articles.article.forEach((article) => {
           expect(typeof article.author).toBe("string");
           expect(typeof article.title).toBe("string");
           expect(typeof article.article_id).toBe("number");
@@ -84,6 +85,87 @@ describe("GET /api/articles", () => {
           expect(typeof article.article_img_url).toBe("string");
           expect(typeof article.comment_count).toBe("number");
         });
+      });
+  });
+});
+
+describe("GET /api/articles/3/comments", () => {
+  test("returns array of comments of  Article 3", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then((response) => {
+        const comments = response.body.comments;
+        expect(comments.length).toBeGreaterThan(0);
+        comments.forEach((comment) => {
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.article_id).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.body).toBe("string");
+        });
+      });
+  });
+  test("returns error when given valid but non existent id", () => {
+    return request(app)
+      .get("/api/articles/50/comments")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Item not found");
+      });
+  });
+  // test("returns error when given an invalid id", () => {
+  //   return request(app)
+  //     .get("/api/articles/cars/comments")
+  //     .expect(400)
+  //     .then((response) => {
+  //       console.log(response);
+  //       expect(response.msg).toBe("Bad Path");
+  //     });
+  // });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("Post a comment", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This article is a very nice article",
+    };
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send(newComment)
+      .expect(201)
+      .then((response) => {
+        const comment = response.body.comment;
+        expect(comment.author).toBe("butter_bridge");
+        expect(comment.body).toBe("This article is a very nice article");
+      });
+  });
+  test("returns 404 error when missing key value pair", () => {
+    const newComment = {
+      body: "Lorem ipsum",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not found");
+      });
+  });
+  test("returns 400 error when given a too many key value pairs", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Lorem ipsum",
+      votes: 5,
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 });
