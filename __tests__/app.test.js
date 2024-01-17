@@ -90,7 +90,7 @@ describe("GET /api/articles", () => {
 });
 
 describe("GET /api/articles/3/comments", () => {
-  test("returns array of comments of specified article", () => {
+  test("returns array of comments of  Article 3", () => {
     return request(app)
       .get("/api/articles/3/comments")
       .expect(200)
@@ -107,12 +107,39 @@ describe("GET /api/articles/3/comments", () => {
         });
       });
   });
-  test("returns error when no comments found for specific article", () => {
+  test("returns error when given valid but non existent id", () => {
     return request(app)
-      .get("/api/articles/2/comments")
+      .get("/api/articles/50/comments")
       .expect(404)
       .then((response) => {
-        expect(response.body).toEqual({ msg: "Item not found" });
+        expect(response.body.msg).toBe("Item not found");
+      });
+  });
+  // test("returns error when given an invalid id", () => {
+  //   return request(app)
+  //     .get("/api/articles/cars/comments")
+  //     .expect(400)
+  //     .then((response) => {
+  //       console.log(response);
+  //       expect(response.msg).toBe("Bad Path");
+  //     });
+  // });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("Post a comment", () => {
+    const newComment = {
+      username: "test",
+      body: "Lorem ipsum",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(201)
+      .then((response) => {
+        const comment = response.body.comment;
+        expect(comment.username).toBe("test");
+        expect(comment.body).toBe("Lorem ipsum");
       });
   });
 });

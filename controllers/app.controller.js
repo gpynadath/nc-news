@@ -3,6 +3,7 @@ const {
   selectAllArticles,
   selectAnArticle,
   selectCommentsById,
+  checkArticleExists,
 } = require("../models/app.models");
 
 exports.getAllTopics = (req, res, next) => {
@@ -35,6 +36,11 @@ exports.getAllArticles = (req, res, next) => {
 
 exports.getCommentsById = (req, res, next) => {
   const { article_id } = req.params;
+  checkArticleExists(article_id)
+    .then()
+    .catch((err) => {
+      next(err);
+    });
   selectCommentsById(article_id)
     .then((comments) => {
       res.status(200).send({ comments });
@@ -42,4 +48,9 @@ exports.getCommentsById = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.postCommentsById = (req, res, next) => {
+  const { article_id } = req.params;
+  insertCommentById(article_id)
 };

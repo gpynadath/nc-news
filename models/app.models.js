@@ -32,7 +32,8 @@ exports.selectAllArticles = () => {
     .then((article) => {
       if (article.rows.length === 0) {
         return Promise.reject({
-          msg: "Bad request.",
+          status: 404,
+          msg: "Item not found",
         });
       } else {
         return article.rows;
@@ -46,12 +47,24 @@ exports.selectCommentsById = (article_id) => {
       `SELECT * FROM comments WHERE article_id=${article_id} ORDER BY created_at DESC;`
     )
     .then((data) => {
+      return data.rows;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+exports.checkArticleExists = (article_id) => {
+  return db
+    .query(
+      `SELECT * FROM comments WHERE article_id=${article_id} ORDER BY created_at DESC;`
+    )
+    .then((data) => {
       if (data.rows.length === 0) {
         return Promise.reject({
-          msg: "Bad request",
+          status: 404,
+          msg: "Item not found",
         });
-      } else {
-        return data.rows;
       }
     });
 };
