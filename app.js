@@ -6,6 +6,7 @@ const {
   getCommentsById,
   postCommentsById,
   patchArticleById,
+  deleteCommentsById,
   
 } = require("./controllers/app.controller");
 
@@ -29,6 +30,7 @@ app.post("/api/articles/:article_id/comments", postCommentsById);
 
 app.patch("/api/articles/:article_id", patchArticleById);
 
+app.delete("/api/comments/:comment_id",deleteCommentsById)
 
 
 app.use((err, req, res, next) => {

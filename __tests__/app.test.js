@@ -199,3 +199,34 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("delete a comment", () => {
+    return request(app)
+      .delete("/api/comments/7")
+      .expect(204)
+      .then(() => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .then((response) => {
+            expect(response.body.comments.length).toBe(10);
+          });
+      });
+  });
+  test("return 404 error when deleting a non-existent id", () => {
+    return request(app)
+      .delete("/api/comments/999")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not found");
+      });
+  });
+  test("return 400 when id is not an integer", () => {
+    return request(app)
+      .delete("/api/comments/cars")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Wrong input");
+      });
+  });
+});
