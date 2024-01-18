@@ -248,3 +248,26 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/articles (topic query)", () => {
+  test("returns an array of articles of the specified topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.article;
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("returns a 404 error when unknown article passed", () => {
+    return request(app)
+      .get("/api/articles?topic=cars")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not found");
+      });
+  });
+});
