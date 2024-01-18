@@ -7,6 +7,7 @@ const {
   postCommentsById,
   patchArticleById,
   deleteCommentsById,
+  getUsers,
   
 } = require("./controllers/app.controller");
 
@@ -32,6 +33,7 @@ app.patch("/api/articles/:article_id", patchArticleById);
 
 app.delete("/api/comments/:comment_id",deleteCommentsById)
 
+app.get("/api/users", getUsers);
 
 app.use((err, req, res, next) => {
   if (err.msg === "Not found") {
