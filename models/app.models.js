@@ -14,7 +14,8 @@ exports.selectAnArticle = (id) => {
   return db.query(queryString).then((data) => {
     if (data.rows.length === 0) {
       return Promise.reject({
-        msg: "Article not found.",
+        status: 404,
+        msg: "Not found.",
       });
     } else return data.rows[0];
   });
@@ -33,7 +34,7 @@ exports.selectAllArticles = () => {
       if (article.rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: "Item not found",
+          msg: "Not found",
         });
       } else {
         return article.rows;
@@ -61,7 +62,7 @@ exports.checkArticleExists = (article_id) => {
       if (data.rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: "Item not found",
+          msg: "Not found",
         });
       }
     });
@@ -76,6 +77,27 @@ exports.insertCommentById = (article_id, username, body) => {
       return data.rows[0];
     })
     .catch((err) => {});
+};
+
+exports.updateArticleById = (article_id, inc_votes) => {
+  return db
+    .query("SELECT votes FROM articles WHERE article_id = $1", [article_id])
+    .then((data) => {
+      if (data.rows.length == 0) {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      }
+      const newVotes = data.rows[0].votes + inc_votes;
+      return db.query(
+        `UPDATE articles
+      SET votes = $1
+      WHERE article_id = $2
+      RETURNING *`,
+        [newVotes, article_id]
+      );
+    })
+    .then((data) => {
+      return data.rows[0];
+    });
 };
 
 

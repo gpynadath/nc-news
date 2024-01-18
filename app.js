@@ -5,6 +5,8 @@ const {
   getAllArticles,
   getCommentsById,
   postCommentsById,
+  patchArticleById,
+  
 } = require("./controllers/app.controller");
 
 const { getAPIEndPoints } = require("./controllers/api.controller");
@@ -25,15 +27,20 @@ app.get("/api", getAPIEndPoints);
 
 app.post("/api/articles/:article_id/comments", postCommentsById);
 
+app.patch("/api/articles/:article_id", patchArticleById);
+
+
+
 app.use((err, req, res, next) => {
-  res.status(404).send({ msg: "Item not found" });
-});
-app.use((err, req, res, next) => {
-  if (err.code === "22P02" || err.code === "23502") {
-    res.status(400).send({ msg: "Bad path" });
+  if (err.msg === "Not found") {
+    res.status(err.status).send({ msg: err.msg });
   } else {
     next(err);
   }
+});
+
+app.use((err, req, res, next) => {
+  res.status(400).send({ msg: "Wrong input" });
 });
 
 module.exports = app;
