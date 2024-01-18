@@ -9,7 +9,7 @@ const {
   updateArticleById,
   removeCommentById,
   selectUsers,
-  
+  selectArticleByQuery,
 } = require("../models/app.models");
 
 exports.getAllTopics = (req, res, next) => {
@@ -35,7 +35,9 @@ exports.getAnArticle = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  selectAllArticles()
+  const { topic } = req.query;
+
+  selectAllArticles(topic)
     .then((article) => {
       res.status(200).send({ article });
     })
@@ -105,7 +107,20 @@ exports.deleteCommentsById = (req, res, next) => {
 };
 
 exports.getUsers = (req, res, next) => {
-  selectUsers()
-    .then((users) => {res.status(200).send({users})})
-    
+  selectUsers().then((users) => {
+    res.status(200).send({ users });
+  });
+};
+
+exports.getArticleByQuery = (req, res, next) => {
+  console.log("controller");
+  const { topic } = req.query;
+  console.log(topic);
+  selectArticleByQuery(topic)
+    .then((topic) => {
+      res.status(200).send({ topic });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

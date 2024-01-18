@@ -21,25 +21,28 @@ exports.selectAnArticle = (id) => {
   });
 };
 
-exports.selectAllArticles = () => {
-  return db
-    .query(
-      `SELECT articles.article_id, title, topic, articles.author, articles.created_at, articles.votes, article_img_url,CAST(COUNT(comment_id) AS INTEGER) AS comment_count FROM articles 
-      LEFT JOIN comments ON articles.article_id = comments.article_id 
-      GROUP BY articles.article_id
-      ORDER BY articles.created_at DESC
-  `
-    )
-    .then((article) => {
-      if (article.rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "Not found",
-        });
-      } else {
-        return article.rows;
-      }
-    });
+exports.selectAllArticles = (topic) => {
+  let queryString = `SELECT articles.article_id, title, topic, articles.author, articles.created_at, articles.votes, article_img_url,CAST(COUNT(comment_id) AS INTEGER) AS comment_count FROM articles 
+  LEFT JOIN comments ON articles.article_id = comments.article_id `;
+
+  if (topic) {
+    queryString += ` WHERE topic = '${topic}' `;
+  }
+
+  queryString += ` GROUP BY articles.article_id
+  ORDER BY articles.created_at DESC`;
+  
+  return db.query(queryString).then((article) => {
+    if (article.rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "Not found",
+      });
+    } else {
+      
+      return article.rows;
+    }
+  });
 };
 
 exports.selectCommentsById = (article_id) => {
