@@ -6,12 +6,18 @@ const {
   checkArticleExists,
   insertCommentById,
   checkUsernameExists,
+  updateArticleById,
+  
 } = require("../models/app.models");
 
 exports.getAllTopics = (req, res, next) => {
-  selectAllTopics().then((data) => {
-    res.status(200).send({ data });
-  });
+  selectAllTopics()
+    .then((data) => {
+      res.status(200).send({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.getAnArticle = (req, res, next) => {
@@ -59,9 +65,9 @@ exports.postCommentsById = (req, res, next) => {
     res.status(404).send({ msg: "Not found" });
   }
   const length = Object.keys(req.body).length;
-  console.log(length);
-  if(length>2){
-    res.status(400).send({msg:"Bad request"})
+
+  if (length > 2) {
+    res.status(400).send({ msg: "Bad request" });
   }
 
   insertCommentById(article_id, username, body)
@@ -72,3 +78,16 @@ exports.postCommentsById = (req, res, next) => {
       next(err);
     });
 };
+
+exports.patchArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+  updateArticleById(article_id, inc_votes)
+    .then((article) => {
+      res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+

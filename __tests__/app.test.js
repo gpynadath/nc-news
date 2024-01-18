@@ -60,9 +60,9 @@ describe("GET /articles/2", () => {
   test("returns error an on invalid article id", () => {
     return request(app)
       .get("/api/articles/999")
-      .expect(404)
+      .expect(400)
       .then((response) => {
-        expect(response.body).toEqual({ msg: "Item not found" });
+        expect(response.body).toEqual({ msg: "Wrong input" });
       });
   });
 });
@@ -112,7 +112,7 @@ describe("GET /api/articles/3/comments", () => {
       .get("/api/articles/50/comments")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Item not found");
+        expect(response.body.msg).toBe("Not found");
       });
   });
   // test("returns error when given an invalid id", () => {
@@ -166,6 +166,36 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("To update an article", () => {
+    const updatedVote = { inc_votes: 3 };
+    return request(app)
+      .patch("/api/articles/3")
+      .send(updatedVote)
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article;
+        expect(article.title).toBe("Eight pug gifs that remind me of mitch");
+        expect(article.topic).toBe("mitch");
+        expect(article.body).toBe("some gifs");
+        expect(article.votes).toBe(3);
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("returns error 400 when wrong input type", () => {
+    const updatedVote = { inc_votes: "cars" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updatedVote)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Wrong input");
       });
   });
 });
