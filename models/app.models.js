@@ -6,12 +6,13 @@ exports.selectAllTopics = () => {
 };
 
 exports.selectAnArticle = (id) => {
-  let queryString = `SELECT * FROM articles`;
-  if (id) {
-    queryString += ` WHERE article_id=${id}`;
-  }
+  let queryString = ` SELECT articles.author, title, articles.article_id, articles.body, topic, articles.created_at, articles.votes, article_img_url,
+  (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id) AS comment_count 
+  FROM articles
+  LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = ${id}`;
 
   return db.query(queryString).then((data) => {
+    
     if (data.rows.length === 0) {
       return Promise.reject({
         status: 404,
@@ -31,7 +32,7 @@ exports.selectAllArticles = (topic) => {
 
   queryString += ` GROUP BY articles.article_id
   ORDER BY articles.created_at DESC`;
-  
+
   return db.query(queryString).then((article) => {
     if (article.rows.length === 0) {
       return Promise.reject({
@@ -39,7 +40,6 @@ exports.selectAllArticles = (topic) => {
         msg: "Not found",
       });
     } else {
-      
       return article.rows;
     }
   });

@@ -40,10 +40,10 @@ describe("GET /api", () => {
   });
 });
 
-describe("GET /articles/2", () => {
-  test("returns an article object", () => {
+describe("GET /articles/:article_id now with comment_count", () => {
+  test("returns an object of article_id 3", () => {
     return request(app)
-      .get("/api/articles/2")
+      .get("/api/articles/3")
       .expect(200)
       .then((response) => {
         const article = response.body.data;
@@ -55,6 +55,7 @@ describe("GET /articles/2", () => {
         expect(typeof article.created_at).toBe("string");
         expect(typeof article.votes).toBe("number");
         expect(typeof article.article_img_url).toBe("string");
+        expect(article.hasOwnProperty("comment_count")).toBe(true);
       });
   });
   test("returns error an on invalid article id", () => {
