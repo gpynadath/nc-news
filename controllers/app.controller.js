@@ -7,6 +7,7 @@ const {
   insertCommentById,
   checkUsernameExists,
   updateArticleById,
+  removeCommentById,
   
 } = require("../models/app.models");
 
@@ -91,3 +92,13 @@ exports.patchArticleById = (req, res, next) => {
     });
 };
 
+exports.deleteCommentsById = (req, res, next) => {
+  const { comment_id } = req.params;
+  removeCommentById(comment_id)
+    .then((data) => {
+      res.status(204).send({ data });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
