@@ -158,7 +158,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
   test("returns 404 error when invalid id given", () => {
     const newComment = {
-      username:"gp",
+      username: "gp",
       body: "Lorem ipsum",
     };
     return request(app)
@@ -310,6 +310,34 @@ describe("GET /articles/:article_id comment_count", () => {
       .then((response) => {
         const article = response.body.data;
         expect(article.hasOwnProperty("comment_count")).toBe(true);
+      });
+  });
+});
+describe("GET /api/articles (sorting queries)", () => {
+  test("return rticles sorted by descending order by default.", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("return articles that are sorted by any valid query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.length).toBe(13);
+        expect(body.article).toBeSortedBy("author", { descending: true });
+      });
+  });
+  test("return articles sorted by ascending", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.length).toBe(13);
+        expect(body.article).toBeSortedBy("title");
       });
   });
 });
