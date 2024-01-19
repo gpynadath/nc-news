@@ -40,7 +40,7 @@ describe("GET /api", () => {
   });
 });
 
-describe("GET /articles/:article_id now with comment_count", () => {
+describe("GET /articles/:article_id", () => {
   test("returns an object of article_id 3", () => {
     return request(app)
       .get("/api/articles/3")
@@ -55,7 +55,6 @@ describe("GET /articles/:article_id now with comment_count", () => {
         expect(typeof article.created_at).toBe("string");
         expect(typeof article.votes).toBe("number");
         expect(typeof article.article_img_url).toBe("string");
-        expect(article.hasOwnProperty("comment_count")).toBe(true);
       });
   });
   test("returns error an on invalid article id", () => {
@@ -84,7 +83,6 @@ describe("GET /api/articles", () => {
           expect(typeof article.created_at).toBe("string");
           expect(typeof article.votes).toBe("number");
           expect(typeof article.article_img_url).toBe("string");
-          expect(typeof article.comment_count).toBe("number");
         });
       });
   });
@@ -116,15 +114,14 @@ describe("GET /api/articles/3/comments", () => {
         expect(response.body.msg).toBe("Not found");
       });
   });
-  // test("returns error when given an invalid id", () => {
-  //   return request(app)
-  //     .get("/api/articles/cars/comments")
-  //     .expect(400)
-  //     .then((response) => {
-  //       console.log(response);
-  //       expect(response.msg).toBe("Bad Path");
-  //     });
-  // });
+  test("returns 400 error when given an invalid id", () => {
+    return request(app)
+      .get("/api/articles/cars/comments")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Wrong input");
+      });
+  });
 });
 
 describe("POST /api/articles/:article_id/comments", () => {
@@ -141,9 +138,13 @@ describe("POST /api/articles/:article_id/comments", () => {
         const comment = response.body.comment;
         expect(comment.author).toBe("butter_bridge");
         expect(comment.body).toBe("This article is a very nice article");
+        expect(comment.comment_id).toBe(19);
+        expect(comment.article_id).toBe(5);
+        expect(comment.votes).toBe(0);
+        expect(typeof comment.created_at).toBe("string");
       });
   });
-  test("returns 404 error when missing key value pair", () => {
+  test("returns 404 error when username invalid", () => {
     const newComment = {
       body: "Lorem ipsum",
     };
@@ -155,7 +156,20 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(response.body.msg).toBe("Not found");
       });
   });
-  test("returns 400 error when given a too many key value pairs", () => {
+  test("returns 404 error when invalid id given", () => {
+    const newComment = {
+      username:"gp",
+      body: "Lorem ipsum",
+    };
+    return request(app)
+      .post("/api/articles/hello/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not found");
+      });
+  });
+  test("returns 201 when given a too many key value pairs", () => {
     const newComment = {
       username: "butter_bridge",
       body: "Lorem ipsum",
@@ -164,9 +178,15 @@ describe("POST /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/3/comments")
       .send(newComment)
-      .expect(400)
+      .expect(201)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad request");
+        const comment = response.body.comment;
+        expect(comment.author).toBe("butter_bridge");
+        expect(comment.body).toBe("Lorem ipsum");
+        expect(comment.comment_id).toBe(19);
+        expect(comment.article_id).toBe(3);
+        expect(comment.votes).toBe(0);
+        expect(typeof comment.created_at).toBe("string");
       });
   });
 });
@@ -189,10 +209,20 @@ describe("PATCH /api/articles/:article_id", () => {
         );
       });
   });
-  test("returns error 400 when wrong input type", () => {
+  test("returns error 400 when inc_votes has wrong input type", () => {
     const updatedVote = { inc_votes: "cars" };
     return request(app)
       .patch("/api/articles/1")
+      .send(updatedVote)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Wrong input");
+      });
+  });
+  test("returns error 400 when path has wrong input type", () => {
+    const updatedVote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/hello")
       .send(updatedVote)
       .expect(400)
       .then((response) => {
@@ -263,12 +293,23 @@ describe("GET /api/articles (topic query)", () => {
         });
       });
   });
-  test("returns a 404 error when unknown article passed", () => {
+  test("returns a 404 error when unknown topic passed", () => {
     return request(app)
       .get("/api/articles?topic=cars")
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Not found");
+      });
+  });
+});
+describe("GET /articles/:article_id comment_count", () => {
+  test("returns an object of article_id 3 with comment count included", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then((response) => {
+        const article = response.body.data;
+        expect(article.hasOwnProperty("comment_count")).toBe(true);
       });
   });
 });

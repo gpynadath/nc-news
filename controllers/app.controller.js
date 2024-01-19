@@ -65,21 +65,19 @@ exports.getCommentsById = (req, res, next) => {
 exports.postCommentsById = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
-  if (!username || !body) {
-    res.status(404).send({ msg: "Not found" });
-  }
-  const length = Object.keys(req.body).length;
-
-  if (length > 2) {
-    res.status(400).send({ msg: "Bad request" });
-  }
+  checkUsernameExists(username)
+    .then()
+    .catch((err) => {
+      next(err);
+    });
 
   insertCommentById(article_id, username, body)
     .then((comment) => {
       res.status(201).send({ comment });
     })
     .catch((err) => {
-      next(err);
+      
+      next(err)
     });
 };
 
@@ -110,17 +108,4 @@ exports.getUsers = (req, res, next) => {
   selectUsers().then((users) => {
     res.status(200).send({ users });
   });
-};
-
-exports.getArticleByQuery = (req, res, next) => {
-  console.log("controller");
-  const { topic } = req.query;
-  console.log(topic);
-  selectArticleByQuery(topic)
-    .then((topic) => {
-      res.status(200).send({ topic });
-    })
-    .catch((err) => {
-      next(err);
-    });
 };
