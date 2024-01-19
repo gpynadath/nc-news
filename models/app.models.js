@@ -22,8 +22,22 @@ exports.selectAnArticle = (id) => {
   });
 };
 
-exports.selectAllArticles = (topic) => {
+exports.selectAllArticles = (topic, sort_by = "created_at", order = "desc") => {
   let queries = [];
+  const validSortBy = ["title", "topic", "author", "created_at", "votes"];
+  const validOrder = ["asc", "desc"];
+  if (!validOrder.includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Wrong input",
+    });
+  }
+  if (!validSortBy.includes(sort_by)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Wrong input",
+    });
+  }
   let queryString = `SELECT articles.article_id, title, topic, articles.author, articles.created_at, articles.votes, article_img_url,CAST(COUNT(comment_id) AS INTEGER) AS comment_count FROM articles 
   LEFT JOIN comments ON articles.article_id = comments.article_id `;
 
@@ -33,7 +47,7 @@ exports.selectAllArticles = (topic) => {
   }
 
   queryString += ` GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC`;
+  ORDER BY ${sort_by} ${order}`;
 
   return db.query(queryString, queries).then((article) => {
     if (article.rows.length === 0) {

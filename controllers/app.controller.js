@@ -35,9 +35,9 @@ exports.getAnArticle = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const { topic } = req.query;
+  const { topic, sort_by, order } = req.query;
 
-  selectAllArticles(topic)
+  selectAllArticles(topic, sort_by, order)
     .then((article) => {
       res.status(200).send({ article });
     })
@@ -76,8 +76,7 @@ exports.postCommentsById = (req, res, next) => {
       res.status(201).send({ comment });
     })
     .catch((err) => {
-      
-      next(err)
+      next(err);
     });
 };
 
