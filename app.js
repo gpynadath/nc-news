@@ -1,4 +1,9 @@
 const express = require("express");
+
+const cors = require("cors");
+
+app.use(cors());
+
 const {
   getAllTopics,
   getAnArticle,
@@ -34,8 +39,6 @@ app.patch("/api/articles/:article_id", patchArticleById);
 app.delete("/api/comments/:comment_id", deleteCommentsById);
 
 app.get("/api/users", getUsers);
-
-
 
 app.use((err, req, res, next) => {
   if (err.msg === "Not found") {
