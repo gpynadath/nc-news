@@ -1,4 +1,9 @@
 const express = require("express");
+
+const cors = require("cors");
+
+
+
 const {
   getAllTopics,
   getAnArticle,
@@ -14,6 +19,7 @@ const {
 const { getAPIEndPoints } = require("./controllers/api.controller");
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 
@@ -34,8 +40,6 @@ app.patch("/api/articles/:article_id", patchArticleById);
 app.delete("/api/comments/:comment_id", deleteCommentsById);
 
 app.get("/api/users", getUsers);
-
-
 
 app.use((err, req, res, next) => {
   if (err.msg === "Not found") {
