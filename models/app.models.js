@@ -24,7 +24,7 @@ exports.selectAnArticle = (id) => {
 
 exports.selectAllArticles = (topic, sort_by = "created_at", order = "desc") => {
   let queries = [];
-  const validSortBy = ["title", "topic", "author", "created_at", "votes"];
+  const validSortBy = ["title", "topic", "author", "created_at", "votes","comment_count"];
   const validOrder = ["asc", "desc"];
   if (!validOrder.includes(order)) {
     return Promise.reject({

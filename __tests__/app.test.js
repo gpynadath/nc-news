@@ -124,7 +124,7 @@ describe("GET /api/articles/3/comments", () => {
   });
 });
 
-describe("POST /api/articles/:article_id/comments", () => {
+describe  ("POST /api/articles/:article_id/comments", () => {
   test("Post a comment", () => {
     const newComment = {
       username: "butter_bridge",
